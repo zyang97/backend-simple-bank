@@ -12,6 +12,13 @@ SELECT * from accounts
 WHERE id = $1
 LIMIT 1;
 
+-- name: GetAccountForUpdate :one
+SELECT * from accounts
+WHERE id = $1
+LIMIT 1
+FOR NO KEY UPDATE;
+
+
 -- name: ListAccount :many
 SELECT * from accounts
 ORDER BY id
@@ -22,6 +29,12 @@ OFFSET $2;
 UPDATE accounts
 SET balance = $1
 WHERE id = $2
+RETURNING *;
+
+-- name: AddAccountBalance :one
+UPDATE accounts
+SET balance = balance + sqlc.arg(amount)
+WHERE id = sqlc.arg(id)
 RETURNING *;
 
 -- name: DeleteAccount :exec
