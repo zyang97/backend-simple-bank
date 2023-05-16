@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 	db "github.com/techschool/simplebank/db/sqlc"
 )
 
@@ -53,7 +54,7 @@ func (server *Server) getAccount(ctx *gin.Context) {
 			ctx.JSON(http.StatusNotFound, errResponse(err))
 			return
 		}
-		ctx.JSON(http.StatusBadRequest, errResponse(err))
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
 
