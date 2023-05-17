@@ -1,4 +1,4 @@
--- name: CreateUsers :one
+-- name: CreateUser :one
 INSERT INTO users (
     username,
     hashed_password,
@@ -8,7 +8,7 @@ INSERT INTO users (
         $1, $2, $3, $4
     ) RETURNING *;
 
--- name: GetUsers :one
+-- name: GetUser :one
 SELECT * from users
 WHERE username = $1
 LIMIT 1;

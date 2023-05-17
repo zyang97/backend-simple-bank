@@ -35,6 +35,9 @@ func NewServer(store db.Store) *Server {
 	// TransferTx API
 	router.POST("/transfer", server.createTransfer)
 
+	// User API
+	router.POST("/users", server.createUser)
+
 	server.router = router
 	return server
 }
