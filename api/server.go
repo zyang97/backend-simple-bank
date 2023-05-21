@@ -47,20 +47,22 @@ func (server *Server) setupRouter() {
 
 	router := gin.Default()
 
-	// Account API
-	router.POST("/accounts", server.createAccount)
-	router.POST("/delete_accounts", server.deleteAccount)
-	router.POST("/update_accounts", server.updateAccount)
-
-	router.GET("/accounts/:id", server.getAccount)
-	router.GET("/accounts", server.listAccount)
-
-	// TransferTx API
-	router.POST("/transfer", server.createTransfer)
-
 	// User API
 	router.POST("/users", server.createUser)
 	router.POST("/users/login", server.loginUser)
+
+	authGroup := router.Group("/").Use(authMiddleware(server.tokenMaker))
+
+	// Account API
+	authGroup.POST("/accounts", server.createAccount)
+	authGroup.POST("/delete_accounts", server.deleteAccount)
+	authGroup.POST("/update_accounts", server.updateAccount)
+
+	authGroup.GET("/accounts/:id", server.getAccount)
+	authGroup.GET("/accounts", server.listAccount)
+
+	// TransferTx API
+	authGroup.POST("/transfer", server.createTransfer)
 
 	server.router = router
 }

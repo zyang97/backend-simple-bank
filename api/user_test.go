@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -18,20 +19,6 @@ import (
 	db "github.com/techschool/simplebank/db/sqlc"
 	"github.com/techschool/simplebank/util"
 )
-
-func RandomUser(t *testing.T) (user db.User, password string) {
-	password = util.RandString(6)
-	hashedPassword, err := util.HashedPassword(password)
-	require.NoError(t, err)
-
-	user = db.User{
-		Username:       util.RandOwner(),
-		HashedPassword: hashedPassword,
-		FullName:       util.RandOwner(),
-		Email:          util.RandEmail(),
-	}
-	return
-}
 
 type eqCreateUserParamMatcher struct {
 	arg      db.CreateUserParams
@@ -90,6 +77,7 @@ func TestCreateUserAPI(t *testing.T) {
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
+				requireBodyMatchUser(t, recorder.Body, user)
 			},
 		},
 		{
@@ -209,4 +197,31 @@ func TestCreateUserAPI(t *testing.T) {
 
 		})
 	}
+}
+
+func RandomUser(t *testing.T) (user db.User, password string) {
+	password = util.RandString(6)
+	hashedPassword, err := util.HashedPassword(password)
+	require.NoError(t, err)
+
+	user = db.User{
+		Username:       util.RandOwner(),
+		HashedPassword: hashedPassword,
+		FullName:       util.RandOwner(),
+		Email:          util.RandEmail(),
+	}
+	return
+}
+
+func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user db.User) {
+	data, err := ioutil.ReadAll(body)
+	require.NoError(t, err)
+
+	var getUser db.User
+	err = json.Unmarshal(data, &getUser)
+	require.NoError(t, err)
+	require.Equal(t, user.Username, getUser.Username)
+	require.Equal(t, user.FullName, getUser.FullName)
+	require.Equal(t, user.Email, getUser.Email)
+	require.Empty(t, getUser.HashedPassword)
 }
