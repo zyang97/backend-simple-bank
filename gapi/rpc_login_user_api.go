@@ -29,12 +29,12 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 
 	accessToken, accessPayload, err := server.tokenMaker.CreateToken(req.Username, server.config.AccessTokenDuration)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to create access token: ", err)
+		return nil, status.Errorf(codes.Internal, "failed to create access token: %s", err)
 	}
 
 	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(req.Username, server.config.RefreshTokenDuration)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to create refresh token: ", err)
+		return nil, status.Errorf(codes.Internal, "failed to create refresh token: %s", err)
 	}
 
 	session, err := server.store.CreateSession(context.Background(), db.CreateSessionParams{
@@ -48,7 +48,7 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 	})
 
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "internal error: ", err)
+		return nil, status.Errorf(codes.Internal, "failed to create session: %s", err)
 	}
 
 	rsp := &pb.LoginUserResponse{
