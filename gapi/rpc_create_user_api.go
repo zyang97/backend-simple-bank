@@ -7,13 +7,21 @@ import (
 	db "github.com/techschool/simplebank/db/sqlc"
 	"github.com/techschool/simplebank/pb"
 	"github.com/techschool/simplebank/util"
+	"github.com/techschool/simplebank/val"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
+	// Validate create user request.
+	violations := validateCreateUserRequest(req)
+	if violations != nil {
+		return nil, invalidArgumentError(violations)
+	}
 
+	// Create user follows request.
 	hashedPassword, err := util.HashedPassword(req.GetPassword())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to hash password: %s", err)
@@ -38,6 +46,7 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 		return nil, status.Errorf(codes.Unimplemented, "failed to create user: %s", err)
 	}
 
+	// Generate response.
 	rsp := &pb.CreateUserResponse{
 		User: &pb.User{
 			Username:         user.Username,
@@ -49,4 +58,21 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 	}
 
 	return rsp, nil
+}
+
+// validateCreateUserRequest validates all fields in CreateUserRequest.
+func validateCreateUserRequest(req *pb.CreateUserRequest) (voilations []*errdetails.BadRequest_FieldViolation) {
+	if err := val.ValidateUsername(req.GetUsername()); err != nil {
+		voilations = append(voilations, fieldValidation("username", err))
+	}
+	if err := val.ValidateUsername(req.GetPassword()); err != nil {
+		voilations = append(voilations, fieldValidation("password", err))
+	}
+	if err := val.ValidateUsername(req.GetEmail()); err != nil {
+		voilations = append(voilations, fieldValidation("email", err))
+	}
+	if err := val.ValidateUsername(req.GetFullName()); err != nil {
+		voilations = append(voilations, fieldValidation("full_name", err))
+	}
+	return
 }
