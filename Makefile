@@ -43,6 +43,8 @@ proto:
 evans:
 	evans --host localhost --port 8081 -r repl
 
+redis:
+	docker run --name redis -p 6379:6379 -d redis:7-alpine
 
 
-.PHONY: createdb dropdb migrateup migratedown migrateup1 migratedown1 test server mock proto evans
+.PHONY: createdb dropdb migrateup migratedown migrateup1 migratedown1 test server mock proto evans redis
