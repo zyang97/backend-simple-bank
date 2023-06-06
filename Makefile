@@ -11,19 +11,22 @@ migrateup:
 	migrate -path db/migration -database "postgresql://root:fzRSwkNUzlTUZsXVEajH@simple-bank.cofr1fxqo7ie.ca-central-1.rds.amazonaws.com:5432/simple_bank" -verbose up
 
 migratedown:
-	migrate -path db/migration -database "postgresql://root:root@localhost:5432/simple_bank?sslmode=disable" -verbose down
+	migrate -path db/migration -database "postgresql://root:fzRSwkNUzlTUZsXVEajH@simple-bank.cofr1fxqo7ie.ca-central-1.rds.amazonaws.com:5432/simple_bank" -verbose down
 
 migrateup1:
-	migrate -path db/migration -database "postgresql://root:root@localhost:5432/simple_bank?sslmode=disable" -verbose up 1
+	migrate -path db/migration -database "postgresql://root:fzRSwkNUzlTUZsXVEajH@simple-bank.cofr1fxqo7ie.ca-central-1.rds.amazonaws.com:5432/simple_bank" -verbose up 1
 
 migratedown1:
-	migrate -path db/migration -database "postgresql://root:root@localhost:5432/simple_bank?sslmode=disable" -verbose down 1
+	migrate -path db/migration -database "postgresql://root:fzRSwkNUzlTUZsXVEajH@simple-bank.cofr1fxqo7ie.ca-central-1.rds.amazonaws.com:5432/simple_bank" -verbose down 1
+
+new_migration:
+	migrate create -ext sql -dir db/migration -seq $(name)
 
 sqlc:
 	sqlc generate
 
 test:
-	go test -v -cover ./...
+	go test -v -cover -short ./...
 
 server:
 	go run main.go
@@ -47,4 +50,4 @@ redis:
 	docker run --name redis -p 6379:6379 -d redis:7-alpine
 
 
-.PHONY: createdb dropdb migrateup migratedown migrateup1 migratedown1 test server mock proto evans redis
+.PHONY: createdb dropdb migrateup migratedown migrateup1 migratedown1 new_migration test server mock proto evans redis
